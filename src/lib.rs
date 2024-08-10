@@ -63,7 +63,7 @@ fn parse_array(json: &str) -> IResult<&str, JsonNode> {
         delimited(
             tag("["),
             // and contains a list of entries separated by comma (','), optionally empty
-            separated_list0(delimited(multispace0, tag(","), multispace0), parse_json),
+            separated_list0(tag(","), delimited(multispace0, parse_json, multispace0)),
             tag("]"),
         ),
         JsonNode::Array,
@@ -182,6 +182,16 @@ mod tests {
                 ])
             )),
             parse_array("[false, null, false]")
+        );
+        assert_eq!(
+            Ok((
+                "",
+                JsonNode::Array(vec![
+                    JsonNode::Boolean(true),
+                    JsonNode::Boolean(false)
+                ])
+            )),
+            parse_array("[\n\ttrue,\n\tfalse\n]")
         );
 
         assert_eq!(
